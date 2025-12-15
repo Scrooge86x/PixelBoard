@@ -51,7 +51,7 @@ h2 {
     }
 
     input[type='color'],
-    #clear-canvas {
+    button {
         border-radius: 4px;
         cursor: pointer;
     }
@@ -60,7 +60,7 @@ h2 {
         padding: 0;
     }
 
-    #clear-canvas {
+    button {
         background-color: #333;
         color: #eee;
         padding: 6px 10px;

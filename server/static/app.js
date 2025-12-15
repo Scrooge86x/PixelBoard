@@ -142,6 +142,36 @@ document.querySelector('#clear-canvas').addEventListener('click', () => {
     wsSend(g_currentImage);
 });
 
+const getCanvasScale = () =>
+    Number(
+        getComputedStyle(document.documentElement).getPropertyValue(
+            '--canvas-scale'
+        )
+    );
+
+document.querySelector('#zoom-in').addEventListener('click', () => {
+    const canvasScale = getCanvasScale();
+    if (canvasScale === 5) {
+        return;
+    }
+
+    document.documentElement.style.setProperty(
+        '--canvas-scale',
+        canvasScale + 1
+    );
+});
+document.querySelector('#zoom-out').addEventListener('click', () => {
+    const canvasScale = getCanvasScale();
+    if (canvasScale === 1) {
+        return;
+    }
+
+    document.documentElement.style.setProperty(
+        '--canvas-scale',
+        canvasScale - 1
+    );
+});
+
 g_brushSizeEl.addEventListener('input', () => {
     g_brushSizeValueEl.textContent = g_brushSizeEl.value;
 });
