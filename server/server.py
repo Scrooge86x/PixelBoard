@@ -41,6 +41,16 @@ async def websocket(ws: WebSocket):
                 for c in clients:
                     if c is not ws:
                         await c.send_bytes(data)
+            else:
+                for i in range(0, len(data), 4):
+                    index = data[i] | (data[i + 1] << 8)
+                    if 0 <= index < IMAGE_WIDTH * IMAGE_HEIGHT:
+                        current_image[index * 2] = data[i + 2]
+                        current_image[index * 2 + 1] = data[i + 3]
+
+                for c in clients:
+                    if c is not ws:
+                        await c.send_bytes(data)
     except WebSocketDisconnect:
         pass
     finally:

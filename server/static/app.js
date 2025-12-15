@@ -44,6 +44,9 @@ const currentImageToCanvas = () => {
     g_ctx.putImageData(image, 0, 0);
 };
 
+const rgbToRgb565 = (r, g, b) =>
+    ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+
 const canvasToCurrentImage = () => {
     const { data } = g_ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
@@ -51,8 +54,7 @@ const canvasToCurrentImage = () => {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        const rgb565 =
-            ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+        const rgb565 = rgbToRgb565(r, g, b);
 
         g_currentImage[j] = rgb565 & 0xff;
         g_currentImage[j + 1] = rgb565 >> 8;
@@ -63,17 +65,42 @@ const draw = (e) => {
     const { width, height } = g_canvas.getBoundingClientRect();
     const x = Math.floor((e.offsetX * IMAGE_WIDTH) / width);
     const y = Math.floor((e.offsetY * IMAGE_HEIGHT) / height);
+    const brushSize = g_brushSizeEl.valueAsNumber;
 
     g_ctx.fillStyle = g_colorPickerEl.value;
-    g_ctx.fillRect(
-        x,
-        y,
-        g_brushSizeEl.valueAsNumber,
-        g_brushSizeEl.valueAsNumber
-    );
+    g_ctx.fillRect(x, y, brushSize, brushSize);
 
-    canvasToCurrentImage();
-    wsSend(g_currentImage);
+    const diffs = [];
+    const { data } = g_ctx.getImageData(x, y, brushSize, brushSize);
+    for (let dy = 0; dy < brushSize; ++dy) {
+        for (let dx = 0; dx < brushSize; ++dx) {
+            const px = x + dx;
+            const py = y + dy;
+            if (px < 0 || px >= IMAGE_WIDTH || py < 0 || py >= IMAGE_HEIGHT) {
+                continue;
+            }
+
+            const idx = py * IMAGE_WIDTH + px;
+            const offset = (dy * brushSize + dx) * 4;
+
+            const rgb565 = rgbToRgb565(
+                data[offset],
+                data[offset + 1],
+                data[offset + 2]
+            );
+
+            diffs.push(
+                idx & 0xff,
+                (idx >> 8) & 0xff,
+                rgb565 & 0xff,
+                rgb565 >> 8
+            );
+            g_currentImage[idx * 2] = rgb565 & 0xff;
+            g_currentImage[idx * 2 + 1] = rgb565 >> 8;
+        }
+    }
+
+    wsSend(new Uint8Array(diffs));
 };
 
 const handlePaste = async (e) => {
@@ -149,5 +176,13 @@ g_ws.addEventListener('message', (e) => {
     if (data.length === g_currentImage.length) {
         g_currentImage.set(data);
         currentImageToCanvas();
+        return;
     }
+
+    for (let i = 0; i < data.length; i += 4) {
+        const idx = data[i] | (data[i + 1] << 8);
+        g_currentImage[idx * 2] = data[i + 2];
+        g_currentImage[idx * 2 + 1] = data[i + 3];
+    }
+    currentImageToCanvas();
 });
