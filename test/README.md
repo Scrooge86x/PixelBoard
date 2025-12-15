@@ -1,4 +1,4 @@
-# PixelBoard Server
+# PixelBoard Test Client
 
 ## Getting Started
 
@@ -30,6 +30,14 @@ pip install -r requirements.txt
 
 ### 4. Run The Server
 
+Mac:
+
 ```
-fastapi run server.py --port 80
+python3 test_client.py
+```
+
+Windows:
+
+```
+python test_client.py
 ```
