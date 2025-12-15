@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import asyncio
@@ -19,6 +19,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def index():
     return FileResponse("static/index.html")
+
+
+@app.get("/data")
+async def get_data():
+    async with lock:
+        return Response(bytes(current_image), media_type="application/octet-stream")
 
 
 @app.websocket("/ws")
