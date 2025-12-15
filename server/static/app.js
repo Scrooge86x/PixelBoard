@@ -1,5 +1,10 @@
 const IMAGE_WIDTH = 160;
 const IMAGE_HEIGHT = 128;
+const BYTES_PER_PIXEL = 2;
+
+const g_currentImage = new Uint8Array(
+    IMAGE_WIDTH * IMAGE_HEIGHT * BYTES_PER_PIXEL
+);
 
 const g_canvas = document.querySelector('canvas');
 g_canvas.width = IMAGE_WIDTH;
@@ -18,6 +23,42 @@ const g_connectionStatusEl = document.getElementById('connection-status');
 
 let g_isDrawing = false;
 
+const wsSend = (data) => {
+    if (g_ws.readyState === WebSocket.OPEN) {
+        g_ws.send(data);
+    }
+};
+
+const currentImageToCanvas = () => {
+    const image = g_ctx.createImageData(IMAGE_WIDTH, IMAGE_HEIGHT);
+    const { data } = image;
+
+    for (let i = 0, j = 0; i < g_currentImage.length; i += 2, j += 4) {
+        const rgb565 = (g_currentImage[i + 1] << 8) | g_currentImage[i];
+        data[j] = ((rgb565 >> 11) * 255) / 31;
+        data[j + 1] = (((rgb565 >> 5) & 0b111111) * 255) / 63;
+        data[j + 2] = ((rgb565 & 0b11111) * 255) / 31;
+        data[j + 3] = 255;
+    }
+
+    g_ctx.putImageData(image, 0, 0);
+};
+
+const canvasToCurrentImage = () => {
+    const { data } = g_ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+    for (let i = 0, j = 0; i < data.length; i += 4, j += 2) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const rgb565 =
+            ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+
+        g_currentImage[j] = rgb565 & 0xff;
+        g_currentImage[j + 1] = rgb565 >> 8;
+    }
+};
+
 const draw = (e) => {
     const { width, height } = g_canvas.getBoundingClientRect();
     const x = Math.floor((e.offsetX * IMAGE_WIDTH) / width);
@@ -30,6 +71,9 @@ const draw = (e) => {
         g_brushSizeEl.valueAsNumber,
         g_brushSizeEl.valueAsNumber
     );
+
+    canvasToCurrentImage();
+    wsSend(g_currentImage);
 };
 
 const handlePaste = async (e) => {
@@ -55,6 +99,9 @@ const handlePaste = async (e) => {
             scaledHeight
         );
 
+        canvasToCurrentImage();
+        wsSend(g_currentImage);
+
         e.preventDefault();
         return;
     }
@@ -64,6 +111,8 @@ document.addEventListener('paste', handlePaste);
 document.querySelector('#clear-canvas').addEventListener('click', () => {
     g_ctx.fillStyle = '#000';
     g_ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+    canvasToCurrentImage();
+    wsSend(g_currentImage);
 });
 
 g_brushSizeEl.addEventListener('input', () => {
@@ -95,3 +144,10 @@ g_ws.addEventListener(
     'error',
     () => (g_connectionStatusEl.textContent = 'Error')
 );
+g_ws.addEventListener('message', (e) => {
+    const data = new Uint8Array(e.data);
+    if (data.length === g_currentImage.length) {
+        g_currentImage.set(data);
+        currentImageToCanvas();
+    }
+});
