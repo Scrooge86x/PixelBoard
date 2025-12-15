@@ -9,7 +9,7 @@ const g_currentImage = new Uint8Array(
 const g_canvas = document.querySelector('canvas');
 g_canvas.width = IMAGE_WIDTH;
 g_canvas.height = IMAGE_HEIGHT;
-const g_ctx = g_canvas.getContext('2d');
+const g_ctx = g_canvas.getContext('2d', { willReadFrequently: true });
 
 const g_ws = new WebSocket(
     `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`

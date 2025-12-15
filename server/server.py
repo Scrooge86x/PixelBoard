@@ -8,6 +8,7 @@ BYTES_PER_PIXEL = 2
 IMAGE_BYTES = IMAGE_WIDTH * IMAGE_HEIGHT * BYTES_PER_PIXEL
 
 current_image = bytearray(IMAGE_BYTES)
+clients: set[WebSocket] = set()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -21,6 +22,7 @@ async def index():
 @app.websocket("/ws")
 async def websocket(ws: WebSocket):
     await ws.accept()
+    clients.add(ws)
     await ws.send_bytes(current_image)
 
     try:
@@ -31,5 +33,8 @@ async def websocket(ws: WebSocket):
 
             if len(data) == IMAGE_BYTES:
                 current_image[:] = data
+                for c in clients:
+                    if c is not ws:
+                        await c.send_bytes(data)
     except WebSocketDisconnect:
         pass
