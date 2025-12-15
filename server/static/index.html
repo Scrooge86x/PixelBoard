@@ -9,5 +9,13 @@
     <body>
         <h2>PixelBoard</h2>
         <canvas width="160" height="128"></canvas>
+        <div id="tools">
+            <label for="color-picker">Color:</label>
+            <input type="color" id="color-picker" value="#ff0000" />
+            <label for="brush-size">Brush size:</label>
+            <input type="range" id="brush-size" value="2" min="1" max="16" />
+            <span id="brush-size-value">2</span>
+            <button id="clear-canvas">Clear</button>
+        </div>
     </body>
 </html>

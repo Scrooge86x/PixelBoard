@@ -18,10 +18,55 @@ canvas {
     image-rendering: pixelated;
     width: calc(160px * var(--canvas-scale));
     height: calc(128px * var(--canvas-scale));
+    margin-bottom: 15px;
 }
 
 h2 {
     font-size: 1.75rem;
     margin-bottom: 2rem;
     font-weight: 400;
+}
+
+#tools {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+
+    label {
+        font-size: 0.9rem;
+        color: #ccc;
+    }
+
+    #brush-size-value {
+        width: 2ch;
+    }
+
+    input[type='range'] {
+        width: 100px;
+        cursor: pointer;
+        accent-color: #bbb;
+    }
+
+    input[type='color'],
+    #clear-canvas {
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type='color'] {
+        padding: 0;
+    }
+
+    #clear-canvas {
+        background-color: #333;
+        color: #eee;
+        padding: 6px 10px;
+        border: none;
+        font-size: 0.9rem;
+
+        &:hover {
+            background-color: #444;
+        }
+    }
 }
