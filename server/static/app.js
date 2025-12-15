@@ -21,7 +21,39 @@ const draw = (e) => {
     );
 };
 
-document.getElementById('clear-canvas').addEventListener('click', () => {
+const handlePaste = async (e) => {
+    for (const item of e.clipboardData.items) {
+        if (!item.type.includes('image')) {
+            continue;
+        }
+
+        const image = await createImageBitmap(item.getAsFile());
+        const { width, height } = image;
+
+        const scale = Math.min(
+            g_canvas.width / width,
+            g_canvas.height / height
+        );
+        const scaledWidth = width * scale;
+        const scaledHeight = height * scale;
+
+        g_ctx.fillStyle = '#000';
+        g_ctx.fillRect(0, 0, g_canvas.width, g_canvas.height);
+        g_ctx.drawImage(
+            image,
+            (g_canvas.width - scaledWidth) / 2,
+            (g_canvas.height - scaledHeight) / 2,
+            scaledWidth,
+            scaledHeight
+        );
+
+        e.preventDefault();
+        return;
+    }
+};
+
+document.addEventListener('paste', handlePaste);
+document.querySelector('#clear-canvas').addEventListener('click', () => {
     g_ctx.fillStyle = '#000';
     g_ctx.fillRect(0, 0, g_canvas.width, g_canvas.height);
 });
