@@ -9,6 +9,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 0;
 }
 
 canvas {
@@ -23,7 +24,7 @@ canvas {
 
 h2 {
     font-size: 1.75rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
     font-weight: 400;
 }
 
@@ -32,6 +33,7 @@ h2 {
     gap: 10px;
     align-items: center;
     justify-content: center;
+    margin-bottom: 15px;
 
     label {
         font-size: 0.9rem;
@@ -69,4 +71,9 @@ h2 {
             background-color: #444;
         }
     }
+}
+
+small {
+    color: #888;
+    font-size: 0.8rem;
 }
