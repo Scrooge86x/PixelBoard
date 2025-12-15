@@ -155,7 +155,7 @@ g_canvas.addEventListener('mousedown', (e) => {
     g_isDrawing = true;
     draw(e);
 });
-g_canvas.addEventListener('mouseup', () => {
+document.addEventListener('mouseup', () => {
     g_isDrawing = false;
 });
 
