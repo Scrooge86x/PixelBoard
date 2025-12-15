@@ -71,6 +71,11 @@ h2 {
             background-color: #444;
         }
     }
+
+    #connection-status {
+        font-size: 0.9rem;
+        color: #aaa;
+    }
 }
 
 small {

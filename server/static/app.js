@@ -6,9 +6,15 @@ g_canvas.width = IMAGE_WIDTH;
 g_canvas.height = IMAGE_HEIGHT;
 const g_ctx = g_canvas.getContext('2d');
 
+const g_ws = new WebSocket(
+    `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`
+);
+g_ws.binaryType = 'arraybuffer';
+
 const g_brushSizeEl = document.querySelector('#brush-size');
 const g_brushSizeValueEl = document.querySelector('#brush-size-value');
 const g_colorPickerEl = document.querySelector('#color-picker');
+const g_connectionStatusEl = document.getElementById('connection-status');
 
 let g_isDrawing = false;
 
@@ -76,3 +82,16 @@ g_canvas.addEventListener('mousedown', (e) => {
 g_canvas.addEventListener('mouseup', () => {
     g_isDrawing = false;
 });
+
+g_ws.addEventListener(
+    'open',
+    () => (g_connectionStatusEl.textContent = 'Connected')
+);
+g_ws.addEventListener(
+    'close',
+    () => (g_connectionStatusEl.textContent = 'Disconnected')
+);
+g_ws.addEventListener(
+    'error',
+    () => (g_connectionStatusEl.textContent = 'Error')
+);
