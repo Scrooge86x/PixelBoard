@@ -1,4 +1,9 @@
+const IMAGE_WIDTH = 160;
+const IMAGE_HEIGHT = 128;
+
 const g_canvas = document.querySelector('canvas');
+g_canvas.width = IMAGE_WIDTH;
+g_canvas.height = IMAGE_HEIGHT;
 const g_ctx = g_canvas.getContext('2d');
 
 const g_brushSizeEl = document.querySelector('#brush-size');
@@ -9,8 +14,8 @@ let g_isDrawing = false;
 
 const draw = (e) => {
     const { width, height } = g_canvas.getBoundingClientRect();
-    const x = Math.floor((e.offsetX * g_canvas.width) / width);
-    const y = Math.floor((e.offsetY * g_canvas.height) / height);
+    const x = Math.floor((e.offsetX * IMAGE_WIDTH) / width);
+    const y = Math.floor((e.offsetY * IMAGE_HEIGHT) / height);
 
     g_ctx.fillStyle = g_colorPickerEl.value;
     g_ctx.fillRect(
@@ -30,19 +35,16 @@ const handlePaste = async (e) => {
         const image = await createImageBitmap(item.getAsFile());
         const { width, height } = image;
 
-        const scale = Math.min(
-            g_canvas.width / width,
-            g_canvas.height / height
-        );
+        const scale = Math.min(IMAGE_WIDTH / width, IMAGE_HEIGHT / height);
         const scaledWidth = width * scale;
         const scaledHeight = height * scale;
 
         g_ctx.fillStyle = '#000';
-        g_ctx.fillRect(0, 0, g_canvas.width, g_canvas.height);
+        g_ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
         g_ctx.drawImage(
             image,
-            (g_canvas.width - scaledWidth) / 2,
-            (g_canvas.height - scaledHeight) / 2,
+            (IMAGE_WIDTH - scaledWidth) / 2,
+            (IMAGE_HEIGHT - scaledHeight) / 2,
             scaledWidth,
             scaledHeight
         );
@@ -55,7 +57,7 @@ const handlePaste = async (e) => {
 document.addEventListener('paste', handlePaste);
 document.querySelector('#clear-canvas').addEventListener('click', () => {
     g_ctx.fillStyle = '#000';
-    g_ctx.fillRect(0, 0, g_canvas.width, g_canvas.height);
+    g_ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 });
 
 g_brushSizeEl.addEventListener('input', () => {
