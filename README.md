@@ -15,4 +15,4 @@ test client that uses the GET /data endpoint like the board would do
 - pasting images from the clipboard (auto scaling is applied to make the image fit)
 - support for rgb565 LCD displays
 
-![demo](https://github.com/user-attachments/assets/d8fdcedd-187a-4f04-adb4-546585e43cd4)
+https://github.com/user-attachments/assets/e09b7962-2037-42ec-9a17-0088fa0f05eb
